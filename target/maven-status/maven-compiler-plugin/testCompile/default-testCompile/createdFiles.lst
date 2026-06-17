@@ -1,0 +1,5 @@
+com\campus\mywebtest\tests\LoginTest.class
+com\campus\mywebtest\tests\BaseTest.class
+com\campus\mywebtest\pages\BookSearchPage.class
+com\campus\mywebtest\tests\BookSearchTest.class
+com\campus\mywebtest\pages\LoginPage.class

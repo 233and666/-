@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <title>浏览器 API 演示页面</title>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 20px; }
+    .section { margin-bottom: 25px; padding: 15px; border: 1px solid #ddd; border-radius: 4px; }
+    .section h3 { margin-top: 0; color: #333; }
+    input, select, button { margin: 4px; padding: 6px; }
+  </style>
+</head>
+<body>
+<h2>Selenium 浏览器 API 演示</h2>
+
+<!-- 表单输入区域 -->
+<div class="section">
+  <h3>表单元素</h3>
+  <form id="demoForm" action="#" onsubmit="return false;">
+    <label for="username">用户名：</label>
+    <input type="text" id="username" name="username" placeholder="请输入用户名"/><br/>
+    <label for="password">密　码：</label>
+    <input type="password" id="password" name="password" placeholder="请输入密码"/><br/>
+    <input type="checkbox" id="agree" name="agree" checked/>
+    <label for="agree">同意用户协议</label><br/>
+    <input type="radio" name="gender" value="male" id="male" checked/>
+    <label for="male">男</label>
+    <input type="radio" name="gender" value="female" id="female"/>
+    <label for="female">女</label><br/>
+    <input type="text" id="disabledInput" disabled value="我是被禁用的输入框"/><br/>
+    <label for="citySelect">城市：</label>
+    <select id="citySelect" name="city">
+      <option value="">-- 请选择城市 --</option>
+      <option value="gx">南宁</option>
+      <option value="bj">北京</option>
+      <option value="sh">上海</option>
+    </select><br/>
+    <button type="button" id="submitBtn" style="color: red;"
+            onclick="document.getElementById('result').innerText='提交成功！'">提交</button>
+    <button type="reset" id="resetBtn">重置</button>
+    <span id="result" style="color: green; margin-left: 10px;"></span>
+  </form>
+</div>
+
+<!-- 弹窗测试区域 -->
+<div class="section">
+  <h3>弹窗测试</h3>
+  <button id="alertBtn" onclick="alert('这是一个 alert 弹窗！')">触发 Alert</button>
+  <button id="confirmBtn" onclick="var r=confirm('确定要删除吗？');
+            document.getElementById('confirmResult').innerText=r?'点击了确定':'点击了取消';">
+    触发 Confirm
+  </button>
+  <button id="promptBtn" onclick="var r=prompt('请输入你的名字：','张三');
+            document.getElementById('promptResult').innerText='输入了：'+r;">
+    触发 Prompt
+  </button>
+  <br/>
+  <span id="confirmResult" style="color: blue;"></span>
+  <span id="promptResult" style="color: blue; margin-left: 20px;"></span>
+</div>
+
+<!-- 多窗口测试区域 -->
+<div class="section">
+  <h3>多窗口测试</h3>
+  <a id="newWindowLink" href="about:blank" target="newWindow"
+     onclick="var w=window.open('about:blank','newWindow');
+           w.document.write('<h2>新窗口</h2><p>这是一个新打开的窗口。</p><p id=\\'winText\\'>窗口内容</p>');
+           return false;">打开新窗口（target="_blank"）</a>
+</div>
+
+<!-- 隐藏元素区域 -->
+<div id="hiddenSection" style="display:none;">
+  <p id="hiddenText">这段文字是隐藏的</p>
+</div>
+
+<!-- iframe 测试区域 -->
+<div class="section">
+  <h3>iframe 测试</h3>
+  <iframe id="demoIframe" name="demoIframe" class="content-frame"
+          srcdoc="&lt;!DOCTYPE html&gt;
+                &lt;html&gt;&lt;head&gt;&lt;meta charset='UTF-8'&gt;&lt;/head&gt;&lt;body&gt;
+                    &lt;h3&gt;iframe 内部页面&lt;/h3&gt;
+                    &lt;input type='text' id='innerInput' placeholder='iframe 内的输入框'/&gt;
+                    &lt;br/&gt;
+                    &lt;button id='innerBtn'
+                        onclick='alert(\&quot;iframe内按钮被点击！\&quot;)'&gt;iframe 内按钮&lt;/button&gt;
+                    &lt;p id='innerText'&gt;这是 iframe 内部的文字&lt;/p&gt;
+                &lt;/body&gt;&lt;/html&gt;"
+          width="500" height="180"></iframe>
+</div>
+</body>
+</html>

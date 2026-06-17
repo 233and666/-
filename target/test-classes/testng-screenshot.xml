@@ -1,0 +1,13 @@
+<!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd">
+<suite name="Screenshot Demo Suite">
+    <!-- 注册失败自动截图监听器 -->
+    <listeners>
+        <listener class-name="com.campus.demo.ScreenshotListener"/>
+    </listeners>
+
+    <test name="Screenshot Tests">
+        <classes>
+            <class name="com.campus.demo.ScreenshotDemoTest"/>
+        </classes>
+    </test>
+</suite>

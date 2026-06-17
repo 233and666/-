@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>图书管理系统</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: Arial, sans-serif; background: #f0f2f5; }
+        .header {
+            background: #001529; color: white; padding: 0 24px;
+            height: 56px; display: flex; align-items: center;
+            justify-content: space-between;
+        }
+        .header h1 { font-size: 18px; }
+        .header .user-info { font-size: 14px; }
+        .header .user-info a { color: #ff7875; text-decoration: none; margin-left: 12px; }
+        .container { max-width: 1000px; margin: 24px auto; padding: 0 16px; }
+        .welcome-banner {
+            background: white; padding: 20px 24px; border-radius: 8px;
+            margin-bottom: 16px; box-shadow: 0 1px 4px rgba(0,0,0,.08);
+        }
+        .welcome-banner h2 { color: #1890ff; margin-bottom: 4px; }
+        .search-bar {
+            background: white; padding: 16px 24px; border-radius: 8px;
+            margin-bottom: 16px; box-shadow: 0 1px 4px rgba(0,0,0,.08);
+            display: flex; gap: 12px; align-items: center;
+        }
+        .search-bar input {
+            flex: 1; padding: 8px 12px; border: 1px solid #d9d9d9;
+            border-radius: 4px; font-size: 14px;
+        }
+        .search-bar button {
+            padding: 8px 20px; background: #1890ff; color: white;
+            border: none; border-radius: 4px; cursor: pointer; font-size: 14px;
+        }
+        .search-bar button:hover { background: #40a9ff; }
+        .book-table {
+            background: white; border-radius: 8px;
+            box-shadow: 0 1px 4px rgba(0,0,0,.08); overflow: hidden;
+        }
+        table { width: 100%; border-collapse: collapse; }
+        thead { background: #fafafa; }
+        th, td { padding: 12px 16px; text-align: left; border-bottom: 1px solid #f0f0f0; }
+        th { font-weight: 600; color: #333; font-size: 14px; }
+        td { font-size: 14px; color: #666; }
+        .tag {
+            display: inline-block; padding: 2px 8px; border-radius: 3px;
+            font-size: 12px;
+        }
+        .tag-available { background: #f6ffed; color: #52c41a; border: 1px solid #b7eb8f; }
+        .tag-borrowed { background: #fff7e6; color: #fa8c16; border: 1px solid #ffd591; }
+        .no-result {
+            text-align: center; padding: 40px; color: #999; display: none;
+        }
+        .footer {
+            text-align: center; padding: 24px; font-size: 12px; color: #999;
+        }
+    </style>
+</head>
+<body>
+<div class="header">
+    <h1>📚 图书管理系统</h1>
+    <div class="user-info">
+        欢迎，<span id="userInfo">admin</span>
+        <a href="login.html" id="logoutLink">退出</a>
+    </div>
+</div>
+
+<div class="container">
+    <!-- 欢迎横幅 -->
+    <div class="welcome-banner">
+        <h2>欢迎回来</h2>
+        <p style="color:#666;">您上次登录时间：<span id="lastLoginTime">--</span></p>
+    </div>
+
+    <!-- 搜索栏 -->
+    <div class="search-bar">
+        <input type="text" id="searchInput" placeholder="输入书名或作者搜索...">
+        <button id="searchBtn" onclick="searchBooks()">搜索</button>
+        <button id="clearBtn" onclick="clearSearch()" style="background:#fff;color:#666;border:1px solid #d9d9d9;">清除</button>
+    </div>
+
+    <!-- 图书列表 -->
+    <div class="book-table">
+        <table>
+            <thead>
+            <tr>
+                <th>编号</th>
+                <th>书名</th>
+                <th>作者</th>
+                <th>分类</th>
+                <th>状态</th>
+            </tr>
+            </thead>
+            <tbody id="bookTableBody">
+            <!-- JS 动态填充 -->
+            </tbody>
+        </table>
+        <div class="no-result" id="noResult">未找到匹配的图书</div>
+    </div>
+
+    <div class="footer">共 <span id="totalCount">0</span> 本图书</div>
+</div>
+
+<script>
+    // 模拟图书数据
+    var books = [
+        {id: 1,  title: "软件测试的艺术",       author: "Glenford Myers",  category: "软件测试", status: "available"},
+        {id: 2,  title: "Google软件测试之道",   author: "James Whittaker",  category: "软件测试", status: "available"},
+        {id: 3,  title: "Java编程思想",          author: "Bruce Eckel",      category: "Java开发",  status: "borrowed"},
+        {id: 4,  title: "Spring实战",            author: "Craig Walls",      category: "Java开发",  status: "available"},
+        {id: 5,  title: "高性能MySQL",            author: "Baron Schwartz",   category: "数据库",    status: "available"},
+        {id: 6,  title: "Redis设计与实现",       author: "黄健宏",           category: "数据库",    status: "borrowed"},
+        {id: 7,  title: "深入理解计算机系统",    author: "Randal E.Bryant",  category: "计算机基础", status: "available"},
+        {id: 8,  title: "算法导论",               author: "Thomas H.Cormen",  category: "计算机基础", status: "available"},
+    ];
+
+    // 页面加载时显示所有图书 + 解析 URL 中的用户名
+    window.onload = function() {
+        renderTable(books);
+        var params = new URLSearchParams(window.location.search);
+        var user = params.get('user');
+        if (user) {
+            document.getElementById('userInfo').textContent = user;
+        }
+        // 显示上次登录时间
+        var now = new Date();
+        document.getElementById('lastLoginTime').textContent =
+            now.getFullYear() + '-' +
+            String(now.getMonth()+1).padStart(2,'0') + '-' +
+            String(now.getDate()).padStart(2,'0') + ' ' +
+            String(now.getHours()).padStart(2,'0') + ':' +
+            String(now.getMinutes()).padStart(2,'0');
+    };
+
+    function renderTable(data) {
+        var tbody = document.getElementById('bookTableBody');
+        tbody.innerHTML = '';
+        data.forEach(function(book) {
+            var statusClass = book.status === 'available' ? 'tag-available' : 'tag-borrowed';
+            var statusText  = book.status === 'available' ? '可借阅' : '已借出';
+            tbody.innerHTML +=
+                '<tr class="book-row">' +
+                '<td>' + book.id + '</td>' +
+                '<td class="book-title">' + book.title + '</td>' +
+                '<td class="book-author">' + book.author + '</td>' +
+                '<td>' + book.category + '</td>' +
+                '<td><span class="tag ' + statusClass + '">' + statusText + '</span></td>' +
+                '</tr>';
+        });
+        document.getElementById('totalCount').textContent = data.length;
+        document.getElementById('noResult').style.display =
+            data.length === 0 ? 'block' : 'none';
+    }
+
+    function searchBooks() {
+        var keyword = document.getElementById('searchInput').value.trim().toLowerCase();
+        if (keyword === '') {
+            renderTable(books);
+            return;
+        }
+        var filtered = books.filter(function(book) {
+            return book.title.toLowerCase().includes(keyword) ||
+                book.author.toLowerCase().includes(keyword);
+        });
+        renderTable(filtered);
+    }
+
+    function clearSearch() {
+        document.getElementById('searchInput').value = '';
+        renderTable(books);
+    }
+</script>
+</body>
+</html>
